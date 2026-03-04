@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "mywebportal": {
+      "command": "node",
+      "args": ["mcp-server/index.js"],
+      "env": {
+        "DB_HOST":     "localhost",
+        "DB_PORT":     "5432",
+        "DB_NAME":     "mywebportal",
+        "DB_USER":     "postgres",
+        "DB_PASSWORD": "LeMinhLong123!"
+      }
+    }
+  }
+}
