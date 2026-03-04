@@ -3,7 +3,24 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { readFile } from 'fs/promises';
 import pool from './db/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+async function runMigrations() {
+  const files = ['001_init.sql', '002_dwh_tables.sql', '003_auth.sql', '004_sample_data.sql'];
+  for (const file of files) {
+    try {
+      const sql = await readFile(join(__dirname, '../../migrations', file), 'utf-8');
+      await pool.query(sql);
+      console.log(`✅ Migration ${file} OK`);
+    } catch (e) {
+      console.log(`⚠️  Migration ${file}: ${e.message}`);
+    }
+  }
+}
 import authRouter from './routes/auth.js';
 import chatRouter from './routes/chat.js';
 import sessionsRouter from './routes/sessions.js';
@@ -57,4 +74,5 @@ app.listen(PORT, async () => {
   console.log(`🤖 Groq:   ${process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'}\n`);
   try { await pool.query('SELECT 1'); console.log('✅ Database connected'); }
   catch (e) { console.error('❌ DB error:', e.message); }
+  await runMigrations();
 });

@@ -1,0 +1,61 @@
+services:
+  # ─── Backend Node.js API ───────────────────────────────────────────
+  - type: web
+    name: datalens-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false                   # Điền tay trên Render dashboard
+      - key: GROQ_API_KEY
+        sync: false                   # Điền tay trên Render dashboard (optional)
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: DB_HOST
+        fromDatabase:
+          name: datalens-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: datalens-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: datalens-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: datalens-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: datalens-db
+          property: password
+      - key: PORT
+        value: "3001"
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: CLAUDE_MODEL
+        value: claude-3-5-sonnet-20241022
+      - key: JWT_SECRET
+        sync: false                   # Điền tay trên Render dashboard
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+  # ─── Frontend React + Nginx ────────────────────────────────────────
+  - type: web
+    name: datalens-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: BACKEND_URL
+        value: https://datalens-backend.onrender.com
+
+# ─── PostgreSQL Database ───────────────────────────────────────────
+databases:
+  - name: datalens-db
+    databaseName: mywebportal
+    user: postgres
+    plan: free

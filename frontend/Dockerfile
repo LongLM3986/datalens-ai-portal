@@ -16,12 +16,16 @@ RUN npm run build
 # ---- Stage 2: Serve bằng Nginx ----
 FROM nginx:alpine
 
+# Cài gettext để dùng envsubst (thay thế biến môi trường trong nginx.conf)
+RUN apk add --no-cache gettext
+
 # Copy build output vào Nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom Nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config dưới dạng template
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf.template
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# Dùng envsubst để thay ${BACKEND_URL} trong template rồi start nginx
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
