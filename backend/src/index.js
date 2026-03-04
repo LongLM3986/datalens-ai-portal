@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function runMigrations() {
-  const files = ['001_init.sql', '002_dwh_tables.sql', '003_auth.sql', '004_sample_data.sql'];
+  const files = ['000_auth.sql', '001_init.sql', '002_dwh_tables.sql', '004_sample_data.sql'];
   for (const file of files) {
     try {
       const sql = await readFile(join(__dirname, '../../migrations', file), 'utf-8');
